@@ -1,0 +1,16 @@
+{
+  "apps": [
+    {
+      "sw_id": "7zip.7zip_Igor Pavlov_24.09",
+      "name": "7-Zip",
+      "path": "C:\\Program Files\\7-Zip\\7zFM.exe",
+      "process": "7zFM.exe"
+    },
+    {
+      "sw_id": "Notepad++.Notepad++_Notepad++ Team_8.8.1",
+      "name": "Notepad++",
+      "path": "C:\\Program Files\\Notepad++\\notepad++.exe",
+      "process": "notepad++.exe"
+    }
+  ]
+}
