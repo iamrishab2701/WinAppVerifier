@@ -86,7 +86,6 @@ public class Main {
                         entry.setCloseStatus("Skipped");
                     }
 
-                    entry.setCloseStatus("Closed");
                 } else {
                     entry.setActualVersion(null);
                     entry.setVersionMatch(null);
@@ -120,8 +119,6 @@ public class Main {
             reportEntries.add(entry);
         }
 
-        ReportGenerator.writeHtmlReport(reportEntries, "report.html");
-        System.out.println("\n✅ HTML report generated: report.html");
         // STEP 7: Generate HTML report
         try {
             ReportGenerator.writeHtmlReport(reportEntries, "report.html");
