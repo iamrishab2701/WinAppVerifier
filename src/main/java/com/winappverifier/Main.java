@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        String jsonPath = "apps_config.json";  // unified config file
+        String jsonPath = "apps_config.json";
 
         List<AppConfig> apps = JsonReader.readApps(jsonPath);
         List<ReportEntry> reportEntries = new ArrayList<>();
@@ -49,10 +49,18 @@ public class Main {
                 entry.setCloseStatus("Skipped");
             }
 
+            // Determine Overall Status
+            String overall = "FAILED";
+            if (installed &&
+                    "Running".equalsIgnoreCase(entry.getLaunchStatus()) &&
+                    "Closed".equalsIgnoreCase(entry.getCloseStatus())) {
+                overall = "PASSED";
+            }
+            entry.setOverallStatus(overall);
+
             reportEntries.add(entry);
         }
 
-        // ✅ Generate HTML report
         ReportGenerator.writeHtmlReport(reportEntries, "report.html");
         System.out.println("\n✅ HTML report generated: report.html");
     }

@@ -25,7 +25,7 @@ public class ReportGenerator {
             writer.write("<h2>WinAppVerifier Report</h2>");
             writer.write("<p>Generated: " + LocalDateTime.now() + "</p>");
             writer.write("<table>");
-            writer.write("<tr><th>SW ID</th><th>Name</th><th>Expected Version</th><th>Actual Version</th><th>Installed</th><th>Version Match</th><th>Launch Status</th><th>Close Status</th></tr>");
+            writer.write("<tr><th>SW ID</th><th>Name</th><th>Expected Version</th><th>Actual Version</th><th>Installed</th><th>Version Match</th><th>Launch Status</th><th>Close Status</th><th>Overall Status</th></tr>");
 
             for (ReportEntry entry : entries) {
                 writer.write("<tr>");
@@ -38,6 +38,7 @@ public class ReportGenerator {
                 writer.write(styleTd(entry.getVersionMatch(), "YES", "NO"));
                 writer.write(styleTd(entry.getLaunchStatus()));
                 writer.write(styleTd(entry.getCloseStatus()));
+                writer.write(styleTd(entry.getOverallStatus())); // NEW
 
                 writer.write("</tr>");
             }
@@ -56,12 +57,11 @@ public class ReportGenerator {
         return "<td class=\"" + (value ? "pass" : "fail") + "\">" + (value ? trueText : falseText) + "</td>";
     }
 
-
     private static String styleTd(String status) {
         if (status == null) return "<td>N/A</td>";
         String cls = "warn";
-        if ("Running".equalsIgnoreCase(status) || "Closed".equalsIgnoreCase(status)) cls = "pass";
-        else if ("Failed".equalsIgnoreCase(status) || "Not Installed".equalsIgnoreCase(status)) cls = "fail";
+        if ("Running".equalsIgnoreCase(status) || "Closed".equalsIgnoreCase(status) || "PASSED".equalsIgnoreCase(status)) cls = "pass";
+        else if ("Failed".equalsIgnoreCase(status) || "Not Installed".equalsIgnoreCase(status) || "FAILED".equalsIgnoreCase(status) || "Skipped".equalsIgnoreCase(status)) cls = "fail";
         return "<td class=\"" + cls + "\">" + status + "</td>";
     }
 

@@ -6,16 +6,15 @@ public class ReportEntry {
     private String expectedVersion;
     private String actualVersion;
     private boolean installed;
-    private Boolean versionMatch; // null = not checked
+    private Boolean versionMatch; // optional
     private String launchStatus;
     private String closeStatus;
+    private String overallStatus; // NEW
 
     public ReportEntry(String swId, String name) {
         this.swId = swId;
         this.name = name;
     }
-
-    // Getters and setters
 
     public String getSwId() { return swId; }
     public void setSwId(String swId) { this.swId = swId; }
@@ -40,4 +39,7 @@ public class ReportEntry {
 
     public String getCloseStatus() { return closeStatus; }
     public void setCloseStatus(String closeStatus) { this.closeStatus = closeStatus; }
+
+    public String getOverallStatus() { return overallStatus; }
+    public void setOverallStatus(String overallStatus) { this.overallStatus = overallStatus; }
 }

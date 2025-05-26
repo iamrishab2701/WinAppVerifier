@@ -9,42 +9,54 @@ public class AppChecker {
 
     public static boolean isAppInstalled(AppConfig app) {
         String expectedVersion = extractVersionFromSwId(app.getSw_id());
-        String actualVersion = getVersionFromRegistry(app.getName());
+        String actualVersion = null;
 
+        // 1. Fastest: Registry-based check
+        actualVersion = checkNonMSStoreAppInstallation(app.getName());
+
+        // 2. MS Store/UWP
         if (actualVersion == null) {
-            actualVersion = getVersionFromAppx(app.getName());
+            actualVersion = checkMSStoreAppInstallation(app.getName());
         }
 
+        // 3. Last resort (slow): WMI
         if (actualVersion == null) {
             actualVersion = getVersionFromCim(app.getName());
         }
 
+        // Final outcome
         if (actualVersion == null) {
-            System.out.println(" - Installed: [NO]");
+            System.out.println(" - Installed: NO");
             return false;
         }
 
-        System.out.println(" - Installed: [YES]");
+        System.out.println(" - Installed: YES");
         System.out.println(" - Expected Version: " + expectedVersion);
         System.out.println(" - Actual Version:   " + actualVersion);
 
         if (normalizeVersion(actualVersion).equals(normalizeVersion(expectedVersion))) {
-            System.out.println(" - Version Match: [YES]");
-            return true;
+            System.out.println(" - Version Match: YES");
         } else {
-            System.out.println(" - Version Match: [NO]");
-            return true; // still installed, version mismatch
+            System.out.println(" - Version Match: NO");
         }
+
+        return true;
     }
 
-    private static String getVersionFromRegistry(String name) {
+    private static String checkNonMSStoreAppInstallation(String name) {
         try {
             String command = String.format(
                     "powershell.exe -Command \"@(" +
                             "Get-ItemProperty 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'," +
                             "'HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'" +
-                            ") | Where-Object { $_.DisplayName -like '*%s*' } | Select-Object -ExpandProperty DisplayVersion -First 1\"", name
+                            ") | Where-Object { $_.DisplayName -like '*%s*' } | " +
+                            "Select-Object -ExpandProperty DisplayVersion -First 1\"", name
             );
+
+            System.out.println("[Registry] Executing:");
+            System.out.println("-------------------------------------------------------------------------------------");
+            System.out.println(command);
+            System.out.println("-------------------------------------------------------------------------------------");
 
             ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
             builder.redirectErrorStream(true);
@@ -52,19 +64,32 @@ public class AppChecker {
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String version = reader.readLine();
-            return (version != null && !version.trim().isEmpty()) ? version.trim() : null;
+
+            if (version != null && !version.trim().isEmpty()) {
+                System.out.println("[Registry] FOUND");
+                return version.trim();
+            }
+
+            System.out.println("[Registry] NOT FOUND");
+            return null;
 
         } catch (Exception e) {
-            System.err.println("[ERROR] Registry lookup failed for " + name + ": " + e.getMessage());
+            System.err.println("[Registry] ERROR: " + e.getMessage());
             return null;
         }
     }
 
-    private static String getVersionFromAppx(String name) {
+    private static String checkMSStoreAppInstallation(String name) {
         try {
             String command = String.format(
-                    "powershell.exe -Command \"Get-AppxPackage | Where-Object { $_.Name -like '*%s*' } | Select-Object -ExpandProperty Version -First 1\"", name
+                    "powershell.exe -Command \"Get-AppxPackage | Where-Object { $_.Name -like '*%s*' } | " +
+                            "Select-Object -ExpandProperty Version -First 1\"", name
             );
+
+            System.out.println("[Appx] Executing:");
+            System.out.println("-------------------------------------------------------------------------------------");
+            System.out.println(command);
+            System.out.println("-------------------------------------------------------------------------------------");
 
             ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
             builder.redirectErrorStream(true);
@@ -72,10 +97,17 @@ public class AppChecker {
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String version = reader.readLine();
-            return (version != null && !version.trim().isEmpty()) ? version.trim() : null;
+
+            if (version != null && !version.trim().isEmpty()) {
+                System.out.println("[Appx] FOUND");
+                return version.trim();
+            }
+
+            System.out.println("[Appx] NOT FOUND");
+            return null;
 
         } catch (Exception e) {
-            System.err.println("[ERROR] Appx lookup failed for " + name + ": " + e.getMessage());
+            System.err.println("[Appx] ERROR: " + e.getMessage());
             return null;
         }
     }
@@ -83,8 +115,15 @@ public class AppChecker {
     private static String getVersionFromCim(String name) {
         try {
             String command = String.format(
-                    "powershell.exe -Command \"Get-CimInstance -ClassName Win32_Product | Where-Object { $_.Name -like '*%s*' } | Select-Object -ExpandProperty Version -First 1\"", name
+                    "powershell.exe -Command \"Get-CimInstance -ClassName Win32_Product | " +
+                            "Where-Object { $_.Name -like '*%s*' } | " +
+                            "Select-Object -ExpandProperty Version -First 1\"", name
             );
+
+            System.out.println("[CIM] Executing:");
+            System.out.println("-------------------------------------------------------------------------------------");
+            System.out.println(command);
+            System.out.println("-------------------------------------------------------------------------------------");
 
             ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
             builder.redirectErrorStream(true);
@@ -92,25 +131,31 @@ public class AppChecker {
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String version = reader.readLine();
-            return (version != null && !version.trim().isEmpty()) ? version.trim() : null;
+
+            if (version != null && !version.trim().isEmpty()) {
+                System.out.println("[CIM] FOUND");
+                return version.trim();
+            }
+
+            System.out.println("[CIM] NOT FOUND");
+            return null;
 
         } catch (Exception e) {
-            System.err.println("[ERROR] CIM lookup failed for " + name + ": " + e.getMessage());
+            System.err.println("[CIM] ERROR: " + e.getMessage());
             return null;
         }
     }
 
     public static String getInstalledVersion(AppConfig app) {
-        String version = getVersionFromRegistry(app.getName());
+        String version = checkNonMSStoreAppInstallation(app.getName());
         if (version == null) {
-            version = getVersionFromAppx(app.getName());
+            version = checkMSStoreAppInstallation(app.getName());
         }
         if (version == null) {
             version = getVersionFromCim(app.getName());
         }
         return version;
     }
-
 
     public static String extractVersionFromSwId(String swId) {
         if (swId == null || !swId.contains("_")) return "";
