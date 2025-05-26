@@ -11,6 +11,11 @@
       "name": "Notepad++",
       "path": "C:\\Program Files\\Notepad++\\notepad++.exe",
       "process": "notepad++.exe"
+    },{
+      "sw_id": "9WZDNCRFJ3PZ_Microsoft Corporation_Unknown",
+      "name": "CompanyPortal",
+      "path": "start companyportal:",
+      "process": "CompanyPortal.exe"
     }
   ]
 }
