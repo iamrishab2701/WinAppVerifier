@@ -27,3 +27,4 @@ report.html
 .idea
 target
 .gitattributes
+dependency-reduced-pom.xml
