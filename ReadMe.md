@@ -135,5 +135,5 @@ Ensure the `process` field in the config matches the real executable name shown 
 
 ## 📌 Maintainers
 
-**Created and maintained by:** Rishab Kumar Singh
+**Created and maintained by:** Rishab Kumar Singh | Rahul Kumar
 \[Thoughtworks | QA Engineering]
