@@ -20,6 +20,8 @@
 * ✔️ Parallel execution using `--threads` CLI flag
 * ✔️ Generates an interactive **HTML report with summary chart**
 * ✔️ Designed for scale — ready for thousands of apps
+* ✔️ Log4j2 based logging.
+  
 
 ---
 
@@ -130,6 +132,10 @@ Ensure the `process` field in the config matches the real executable name shown 
 * Validated for high-volume testing (10,000+ apps)
 * Parallel execution ensures fast turnaround
 * Easily extend config JSON to add apps
+
+## 📈 Future Scope
+* Feasibility for other OS
+* Docker based execution for a limited number of apps for cloud based automated execution.
 
 ---
 
