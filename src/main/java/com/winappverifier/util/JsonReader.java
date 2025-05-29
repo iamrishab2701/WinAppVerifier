@@ -3,13 +3,15 @@ package com.winappverifier.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.winappverifier.model.AppConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JsonReader {
-
+    private static final Logger logger = LogManager.getLogger(AppLauncher.class);
     public static List<AppConfig> readApps(String filePath) {
         List<AppConfig> apps = new ArrayList<>();
         try {
@@ -24,7 +26,7 @@ public class JsonReader {
                 }
             }
         } catch (Exception e) {
-            System.err.println("[ERROR] Failed to read app config: " + e.getMessage());
+            logger.error("[ERROR] Failed to read app config: " + e.getMessage());
         }
         return apps;
     }

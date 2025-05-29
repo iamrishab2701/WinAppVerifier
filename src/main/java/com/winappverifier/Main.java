@@ -6,29 +6,30 @@ import com.winappverifier.util.AppChecker;
 import com.winappverifier.util.AppLauncher;
 import com.winappverifier.util.JsonReader;
 import com.winappverifier.util.ReportGenerator;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
 public class Main {
-
+    private static final Logger logger = LogManager.getLogger(AppLauncher.class);
     public static void main(String[] args) {
         int threadCount = parseThreadCount(args);
         List<AppConfig> apps = loadAppConfig("apps_config.json");
 
         if (apps.isEmpty()) {
-            System.err.println("[FATAL] No apps to process. Exiting.");
+            logger.error("[FATAL] No apps to process. Exiting.");
             return;
         }
 
-        System.out.println("App Verification Results:");
+        logger.info("App Verification Results:");
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         List<Future<ReportEntry>> futures = new ArrayList<>();
 
         for (AppConfig app : apps) {
             futures.add(executor.submit(() -> {
-                System.out.println("\n" + app.getName() + ":");
+                logger.info("\n" + app.getName() + ":");
                 return processApp(app);
             }));
         }
@@ -40,7 +41,7 @@ public class Main {
             try {
                 reportEntries.add(futures.get(i).get());
             } catch (Exception e) {
-                System.err.println("[ERROR] Failed to get result for app: " + apps.get(i).getName() + " - " + e.getMessage());
+                logger.error("[ERROR] Failed to get result for app: " + apps.get(i).getName() + " - " + e.getMessage());
                 ReportEntry fallback = new ReportEntry(apps.get(i).getSw_id(), apps.get(i).getName());
                 fallback.setInstalled(false);
                 fallback.setLaunchStatus("Failed");
@@ -60,7 +61,7 @@ public class Main {
                 try {
                     return Integer.parseInt(args[i + 1]);
                 } catch (NumberFormatException e) {
-                    System.err.println("[WARN] Invalid thread count. Using default: " + defaultThreads);
+                    logger.warn("[WARN] Invalid thread count. Using default: " + defaultThreads);
                 }
             }
         }
@@ -71,7 +72,7 @@ public class Main {
         try {
             return JsonReader.readApps(path);
         } catch (Exception e) {
-            System.err.println("[FATAL] Failed to read or parse app config: " + e.getMessage());
+            logger.error("[FATAL] Failed to read or parse app config: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -86,9 +87,9 @@ public class Main {
             boolean installed = false;
             try {
                 installed = AppChecker.isAppInstalled(app);
-                System.out.println(logPrefix + " - Installation Status: " + (installed ? "Installed" : "Not Installed"));
+                logger.info(logPrefix + " - Installation Status: " + (installed ? "Installed" : "Not Installed"));
             } catch (Exception e) {
-                System.err.println(logPrefix + " [ERROR] Failed to check installation: " + e.getMessage());
+                logger.error(logPrefix + " [ERROR] Failed to check installation: " + e.getMessage());
             }
 
             entry.setInstalled(installed);
@@ -97,7 +98,7 @@ public class Main {
                 try {
                     entry.setActualVersion(AppChecker.getInstalledVersion(app));
                 } catch (Exception e) {
-                    System.err.println(logPrefix + " [ERROR] Failed to retrieve actual version: " + e.getMessage());
+                    logger.error(logPrefix + " [ERROR] Failed to retrieve actual version: " + e.getMessage());
                     entry.setActualVersion(null);
                 }
 
@@ -106,7 +107,7 @@ public class Main {
                             .equals(AppChecker.normalizeVersion(entry.getActualVersion()));
                     entry.setVersionMatch(versionMatch);
                 } catch (Exception e) {
-                    System.err.println(logPrefix + " [ERROR] Failed to compare version: " + e.getMessage());
+                    logger.error(logPrefix + " [ERROR] Failed to compare version: " + e.getMessage());
                     entry.setVersionMatch(null);
                 }
 
@@ -119,7 +120,7 @@ public class Main {
                             AppLauncher.close(app);
                             entry.setCloseStatus("Closed");
                         } catch (Exception e) {
-                            System.err.println(logPrefix + " [ERROR] Failed to close app: " + e.getMessage());
+                            logger.error(logPrefix + " [ERROR] Failed to close app: " + e.getMessage());
                             entry.setCloseStatus("Failed");
                         }
                     } else {
@@ -127,7 +128,7 @@ public class Main {
                     }
 
                 } catch (Exception e) {
-                    System.err.println(logPrefix + " [ERROR] Failed to launch app: " + e.getMessage());
+                    logger.error(logPrefix + " [ERROR] Failed to launch app: " + e.getMessage());
                     entry.setLaunchStatus("Failed");
                     entry.setCloseStatus("Skipped");
                 }
@@ -140,7 +141,7 @@ public class Main {
             }
 
         } catch (Exception e) {
-            System.err.println(logPrefix + " [ERROR] Failed to process app: " + e.getMessage());
+            logger.error(logPrefix + " [ERROR] Failed to process app: " + e.getMessage());
             entry.setInstalled(false);
             entry.setActualVersion(null);
             entry.setVersionMatch(null);
@@ -151,7 +152,7 @@ public class Main {
         try {
             entry.setOverallStatus(calculateOverallStatus(entry));
         } catch (Exception e) {
-            System.err.println(logPrefix + " [ERROR] Failed to calculate overall status: " + e.getMessage());
+            logger.error(logPrefix + " [ERROR] Failed to calculate overall status: " + e.getMessage());
             entry.setOverallStatus("FAILED");
         }
 
@@ -170,9 +171,9 @@ public class Main {
     private static void generateReport(List<ReportEntry> reportEntries) {
         try {
             ReportGenerator.writeHtmlReport(reportEntries, "report.html");
-            System.out.println("\n✅ HTML report generated: report.html");
+            logger.info("\n✅ HTML report generated: report.html");
         } catch (Exception e) {
-            System.err.println("[FATAL] Failed to generate HTML report: " + e.getMessage());
+            logger.error("[FATAL] Failed to generate HTML report: " + e.getMessage());
         }
     }
 }

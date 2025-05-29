@@ -1,11 +1,13 @@
 package com.winappverifier.util;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.winappverifier.model.AppConfig;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 public class AppChecker {
+    private static final Logger logger = LogManager.getLogger(AppChecker.class);
 
     public static boolean isAppInstalled(AppConfig app) {
         String expectedVersion = extractVersionFromSwId(app.getSw_id());
@@ -26,18 +28,18 @@ public class AppChecker {
 
         // Final outcome
         if (actualVersion == null) {
-            System.out.println(" - Installed: NO");
+            logger.info(" - Installed: NO");
             return false;
         }
 
-        System.out.println(" - Installed: YES");
-        System.out.println(" - Expected Version: " + expectedVersion);
-        System.out.println(" - Actual Version:   " + actualVersion);
+        logger.info(" - Installed: YES");
+        logger.info(" - Expected Version: " + expectedVersion);
+        logger.info(" - Actual Version:   " + actualVersion);
 
         if (normalizeVersion(actualVersion).equals(normalizeVersion(expectedVersion))) {
-            System.out.println(" - Version Match: YES");
+            logger.info(" - Version Match: YES");
         } else {
-            System.out.println(" - Version Match: NO");
+            logger.info(" - Version Match: NO");
         }
 
         return true;
@@ -53,10 +55,10 @@ public class AppChecker {
                             "Select-Object -ExpandProperty DisplayVersion -First 1\"", name
             );
 
-            System.out.println("[Registry] Executing:");
-            System.out.println("-------------------------------------------------------------------------------------");
-            System.out.println(command);
-            System.out.println("-------------------------------------------------------------------------------------");
+            logger.info("[Registry] Executing:");
+            logger.info("-------------------------------------------------------------------------------------");
+            logger.info(command);
+            logger.info("-------------------------------------------------------------------------------------");
 
             ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
             builder.redirectErrorStream(true);
@@ -66,15 +68,15 @@ public class AppChecker {
             String version = reader.readLine();
 
             if (version != null && !version.trim().isEmpty()) {
-                System.out.println("[Registry] FOUND");
+                logger.info("[Registry] FOUND");
                 return version.trim();
             }
 
-            System.out.println("[Registry] NOT FOUND");
+            logger.error("[Registry] NOT FOUND");
             return null;
 
         } catch (Exception e) {
-            System.err.println("[Registry] ERROR: " + e.getMessage());
+            logger.error("[Registry] ERROR: " + e.getMessage());
             return null;
         }
     }
@@ -86,10 +88,10 @@ public class AppChecker {
                             "Select-Object -ExpandProperty Version -First 1\"", name
             );
 
-            System.out.println("[Appx] Executing:");
-            System.out.println("-------------------------------------------------------------------------------------");
-            System.out.println(command);
-            System.out.println("-------------------------------------------------------------------------------------");
+            logger.info("[Appx] Executing:");
+            logger.info("-------------------------------------------------------------------------------------");
+            logger.info(command);
+            logger.info("-------------------------------------------------------------------------------------");
 
             ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
             builder.redirectErrorStream(true);
@@ -99,15 +101,15 @@ public class AppChecker {
             String version = reader.readLine();
 
             if (version != null && !version.trim().isEmpty()) {
-                System.out.println("[Appx] FOUND");
+                logger.info("[Appx] FOUND");
                 return version.trim();
             }
 
-            System.out.println("[Appx] NOT FOUND");
+            logger.error("[Appx] NOT FOUND");
             return null;
 
         } catch (Exception e) {
-            System.err.println("[Appx] ERROR: " + e.getMessage());
+            logger.info("[Appx] ERROR: " + e.getMessage());
             return null;
         }
     }
@@ -120,10 +122,10 @@ public class AppChecker {
                             "Select-Object -ExpandProperty Version -First 1\"", name
             );
 
-            System.out.println("[CIM] Executing:");
-            System.out.println("-------------------------------------------------------------------------------------");
-            System.out.println(command);
-            System.out.println("-------------------------------------------------------------------------------------");
+            logger.info("[CIM] Executing:");
+            logger.info("-------------------------------------------------------------------------------------");
+            logger.info(command);
+            logger.info("-------------------------------------------------------------------------------------");
 
             ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", command);
             builder.redirectErrorStream(true);
@@ -133,15 +135,15 @@ public class AppChecker {
             String version = reader.readLine();
 
             if (version != null && !version.trim().isEmpty()) {
-                System.out.println("[CIM] FOUND");
+                logger.info("[CIM] FOUND");
                 return version.trim();
             }
 
-            System.out.println("[CIM] NOT FOUND");
+            logger.error("[CIM] NOT FOUND");
             return null;
 
         } catch (Exception e) {
-            System.err.println("[CIM] ERROR: " + e.getMessage());
+            logger.error("[CIM] ERROR: " + e.getMessage());
             return null;
         }
     }

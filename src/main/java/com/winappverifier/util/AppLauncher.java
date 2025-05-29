@@ -1,12 +1,14 @@
 package com.winappverifier.util;
 
 import com.winappverifier.model.AppConfig;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class AppLauncher {
-
+    private static final Logger logger = LogManager.getLogger(AppLauncher.class);
     public static boolean launch(AppConfig app) {
         try {
             String command;
@@ -36,14 +38,11 @@ public class AppLauncher {
 
             return false;
 
-        } catch (Exception e) {
-            System.err.println("[ERROR] Failed to launch " + app.getName() + ": " + e.getMessage());
+        } catch (IOException | InterruptedException e) {
+            logger.error("[ERROR] Failed to launch " + app.getName() + ": " + e.getMessage());
             return false;
         }
     }
-
-
-
     public static boolean isProcessRunning(String processName) {
         try {
             Process process = new ProcessBuilder("tasklist").start();
@@ -56,7 +55,7 @@ public class AppLauncher {
                 }
             }
         } catch (Exception e) {
-            System.err.println("[ERROR] Failed to check process: " + e.getMessage());
+            logger.error("[ERROR] Failed to check process: " + e.getMessage());
         }
         return false;
     }
@@ -64,9 +63,9 @@ public class AppLauncher {
     public static void close(AppConfig app) {
         try {
             new ProcessBuilder("taskkill", "/f", "/im", app.getProcess()).start();
-            System.out.println(" - Close Status: [CLOSED]");
+            logger.info(" - Close Status: [CLOSED]");
         } catch (Exception e) {
-            System.err.println("[ERROR] Failed to close " + app.getName() + ": " + e.getMessage());
+            logger.error("[ERROR] Failed to close " + app.getName() + ": " + e.getMessage());
         }
     }
 }
