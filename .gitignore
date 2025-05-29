@@ -28,3 +28,6 @@ report.html
 target
 .gitattributes
 dependency-reduced-pom.xml
+WinAppVerifier.iml
+WinAppVerifier.ipr
+WinAppVerifier.iws

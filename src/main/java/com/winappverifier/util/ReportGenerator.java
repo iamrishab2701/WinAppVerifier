@@ -6,9 +6,14 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class ReportGenerator {
+    private static final Logger logger = LogManager.getLogger(AppChecker.class);
 
     public static void writeHtmlReport(List<ReportEntry> entries, String filename) {
         long passed = entries.stream().filter(e -> "PASSED".equalsIgnoreCase(e.getOverallStatus())).count();
@@ -30,7 +35,8 @@ public class ReportGenerator {
             writer.write("</head><body>");
 
             writer.write("<h2>WinAppVerifier Report</h2>");
-            writer.write("<p>Generated: " + LocalDateTime.now() + "</p>");
+            String formattedDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            writer.write("<p><strong>Generated on:</strong> " + formattedDate + "</p>");
 
             // Centered pie chart block
             writer.write("<div style='max-width: 400px; margin: 0 auto;'>");
@@ -47,7 +53,15 @@ public class ReportGenerator {
 
             // App result table
             writer.write("<table>");
-            writer.write("<tr><th>SW ID</th><th>Name</th><th>Expected Version</th><th>Actual Version</th><th>Installed</th><th>Version Match</th><th>Launch Status</th><th>Close Status</th><th>Overall Status</th></tr>");
+            writer.write("<tr><th style='background-color: #2986cc; color: white;'>SW ID</th>" +
+                    "<th style='background-color: #2986cc; color: white;'>Name</th>" +
+                    "<th style='background-color: #2986cc; color: white;'>Expected Version</th>" +
+                    "<th style='background-color: #2986cc; color: white;'>Actual Version</th>" +
+                    "<th style='background-color: #2986cc; color: white;'>Installed</th>" +
+                    "<th style='background-color: #2986cc; color: white;'>Version Match</th>" +
+                    "<th style='background-color: #2986cc; color: white;'>Launch Status</th>" +
+                    "<th style='background-color: #2986cc; color: white;'>Close Status</th>" +
+                    "<th style='background-color: #2986cc; color: white;'>Overall Status</th></tr>");
 
             for (ReportEntry entry : entries) {
                 writer.write("<tr>");
@@ -67,7 +81,7 @@ public class ReportGenerator {
             writer.write("</body></html>");
 
         } catch (IOException e) {
-            System.err.println("[ERROR] Failed to generate report: " + e.getMessage());
+            logger.error("[ERROR] Failed to generate report: " + e.getMessage());
         }
     }
 
@@ -81,8 +95,13 @@ public class ReportGenerator {
     private static String styleTd(String status) {
         if (status == null) return "<td>N/A</td>";
         String cls = "warn";
-        if ("Running".equalsIgnoreCase(status) || "Closed".equalsIgnoreCase(status) || "PASSED".equalsIgnoreCase(status)) cls = "pass";
-        else if ("Failed".equalsIgnoreCase(status) || "Not Installed".equalsIgnoreCase(status) || "FAILED".equalsIgnoreCase(status) || "Skipped".equalsIgnoreCase(status)) cls = "fail";
+        if ("Running".equalsIgnoreCase(status) || "Closed".equalsIgnoreCase(status) || "PASSED".equalsIgnoreCase(status)) {
+            cls = "pass";
+        } else if ("Failed".equalsIgnoreCase(status) || "Not Installed".equalsIgnoreCase(status) || "FAILED".equalsIgnoreCase(status)) {
+            cls = "fail";
+        } else if ("Skipped".equalsIgnoreCase(status)) {
+            cls = "warn";
+        }
         return "<td class=\"" + cls + "\">" + status + "</td>";
     }
 
