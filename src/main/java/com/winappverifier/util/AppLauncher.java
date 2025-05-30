@@ -39,7 +39,7 @@ public class AppLauncher {
             return false;
 
         } catch (IOException | InterruptedException e) {
-            logger.error("[ERROR] Failed to launch " + app.getName() + ": " + e.getMessage());
+            logger.error("[ERROR] Failed to launch {}: {}", app.getName(), e.getMessage());
             return false;
         }
     }
@@ -55,7 +55,7 @@ public class AppLauncher {
                 }
             }
         } catch (Exception e) {
-            logger.error("[ERROR] Failed to check process: " + e.getMessage());
+            logger.error("[ERROR] Failed to check process: {}", e.getMessage());
         }
         return false;
     }
@@ -65,7 +65,7 @@ public class AppLauncher {
             new ProcessBuilder("taskkill", "/f", "/im", app.getProcess()).start();
             logger.info(" - Close Status: [CLOSED]");
         } catch (Exception e) {
-            logger.error("[ERROR] Failed to close " + app.getName() + ": " + e.getMessage());
+            logger.error("[ERROR] Failed to close {}: {}", app.getName(), e.getMessage());
         }
     }
 }

@@ -173,7 +173,7 @@ public class Main {
             ReportGenerator.writeHtmlReport(reportEntries, "report.html");
             logger.info("\n✅ HTML report generated: report.html");
         } catch (Exception e) {
-            logger.error("[FATAL] Failed to generate HTML report: " + e.getMessage());
+            logger.error("[FATAL] Failed to generate HTML report: {}", e.getMessage());
         }
     }
 }

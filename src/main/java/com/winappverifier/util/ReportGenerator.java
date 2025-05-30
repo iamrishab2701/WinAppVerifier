@@ -81,7 +81,7 @@ public class ReportGenerator {
             writer.write("</body></html>");
 
         } catch (IOException e) {
-            logger.error("[ERROR] Failed to generate report: " + e.getMessage());
+            logger.error("[ERROR] Failed to generate report: {}", e.getMessage());
         }
     }
 

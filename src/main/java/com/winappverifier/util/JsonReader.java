@@ -26,7 +26,7 @@ public class JsonReader {
                 }
             }
         } catch (Exception e) {
-            logger.error("[ERROR] Failed to read app config: " + e.getMessage());
+            logger.error("[ERROR] Failed to read app config: {}", e.getMessage());
         }
         return apps;
     }
