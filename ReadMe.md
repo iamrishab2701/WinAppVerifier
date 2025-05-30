@@ -57,6 +57,42 @@
 
 ---
 
+
+## 🔎 PowerShell Commands Used for App Detection
+The utility uses three different PowerShell-based techniques to determine whether an application is installed and what version is currently available. These commands are executed sequentially in order of performance and reliability:
+
+| Detection Method     | PowerShell Command                         | Use Case                                                                 |
+|----------------------|---------------------------------------------|--------------------------------------------------------------------------|
+| Registry (Fastest)   | `Get-ItemProperty` from Uninstall keys      | Detects Win32 apps installed via MSI or EXE setups that write to registry |
+| MS Store Apps        | `Get-AppxPackage`                           | Specifically used for apps installed via Microsoft Store (UWP)           |
+| CIM / WMI (Fallback) | `Get-CimInstance -ClassName Win32_Product`  | Slow but exhaustive; used only if above two fail. Detects even legacy installer traces |
+
+### Examples:
+* Registry Example:
+```sh
+Get-ItemProperty 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*' |
+Where-Object { $_.DisplayName -like '*AppName*' } |
+Select-Object -ExpandProperty DisplayVersion -First 1
+```
+
+*MS Store Example:
+```sh
+Get-AppxPackage |
+Where-Object { $_.Name -like '*AppName*' } |
+Select-Object -ExpandProperty Version -First 1
+```
+
+*CIM Example
+```sh
+Get-CimInstance -ClassName Win32_Product |
+Where-Object { $_.Name -like '*AppName*' } |
+Select-Object -ExpandProperty Version -First 1
+```
+
+🧠 Note: The registry method is fastest and safest. CIM/WMI should be used sparingly as it’s known to be slow and may even trigger application repairs on some systems.
+
+---
+
 ## 🚀 How to Run
 
 ### 1. Using Maven
