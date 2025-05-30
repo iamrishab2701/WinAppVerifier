@@ -12,10 +12,10 @@ public class AppChecker {
 
     public static boolean isAppInstalled(AppConfig app) {
         String expectedVersion = extractVersionFromSwId(app.getSw_id());
-        String actualVersion = runPowerShellCheck("Registry", PowerShellCommands.getRegistryResult(app.getName()));
+        String actualVersion = runPowerShellCheck("Registry", PowerShellCommands.getNonMSStoreAppsRegistryEntry(app.getName()));
 
         if (actualVersion == null) {
-            actualVersion = runPowerShellCheck("Appx", PowerShellCommands.getMSStoreResult(app.getName()));
+            actualVersion = runPowerShellCheck("Appx", PowerShellCommands.getMSStoreAppEntry(app.getName()));
         }
 
         if (actualVersion == null) {
@@ -41,9 +41,9 @@ public class AppChecker {
     }
 
     public static String getInstalledVersion(AppConfig app) {
-        String version = runPowerShellCheck("Registry", PowerShellCommands.getRegistryResult(app.getName()));
+        String version = runPowerShellCheck("Registry", PowerShellCommands.getNonMSStoreAppsRegistryEntry(app.getName()));
         if (version == null) {
-            version = runPowerShellCheck("Appx", PowerShellCommands.getMSStoreResult(app.getName()));
+            version = runPowerShellCheck("Appx", PowerShellCommands.getMSStoreAppEntry(app.getName()));
         }
         if (version == null) {
             version = runPowerShellCheck("CIM", PowerShellCommands.getCIMResult(app.getName()));

@@ -2,7 +2,7 @@ package com.winappverifier.util;
 
 public class PowerShellCommands {
 
-    public static String getRegistryResult(String appName) {
+    public static String getNonMSStoreAppsRegistryEntry(String appName) {
         return String.format(
                 "powershell.exe -Command \"@(" +
                         "Get-ItemProperty 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'," +
@@ -12,7 +12,7 @@ public class PowerShellCommands {
         );
     }
 
-    public static String getMSStoreResult(String appName) {
+    public static String getMSStoreAppEntry(String appName) {
         return String.format(
                 "powershell.exe -Command \"Get-AppxPackage | Where-Object { $_.Name -like '*%s*' } | " +
                         "Select-Object -ExpandProperty Version -First 1\"", appName
